@@ -1,0 +1,8 @@
+__pycache__/*
+FindingWinningTicket/data/
+!get_mnist.py
+FindingWinningTicket/logs/*
+!.gitkeep
+FindingWinningTicket/saved_models/*
+!.gitkeep
+~/
