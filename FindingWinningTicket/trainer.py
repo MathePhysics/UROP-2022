@@ -4,7 +4,7 @@ import numpy as np
 import datetime
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from tqdm import tqdm  
+# from tqdm import tqdm  
 from models import *
 from helper import *
 
@@ -24,8 +24,8 @@ def train_one_step(model,
       - model: model to train
       - x,y: data
       - masks: list of masks,
-               length equal to the no. of layers (including the biases
-               whose masks are 1)
+               length equal to the no. of layers (including other
+               trainable variables whose masks are 1)
       - optimizer: tf.keras.optimizer
       - loss_fn: loss function 
       - train_acc:
@@ -78,6 +78,8 @@ def test_one_step(model,
   
 
 
+# the test dataset is used as validation here
+# a separate validation function is implemented in pruning.py
 
 def iterPruning(modelFunc,
                 ds_train,
@@ -96,15 +98,17 @@ def iterPruning(modelFunc,
     - ds_train:
     - ds_test:
     - model_params:
-    - train_params:
+    - train_params: dictionary, contains keys:
+                  - train_loss: tf loss object
+                  - train_acc: tf accuracy object
+                  - patience: int, no. of epochs to wait before early stopping  
     - epochs: epochs to train the model before pruning
     - num_pruning: no. of rounds to prune
     - step_perc: percentage to prune
   '''  
   
-  masks_set = [None]
-  # ticket_hist = []
-  # init_weight_set = [None]
+  init_masks_set = [None]
+  train_masks_set = [None]
 
   # unpack parameters
   optimizer = model_params['optimizer']
@@ -113,6 +117,7 @@ def iterPruning(modelFunc,
   train_acc = train_params['train_acc'](name = 'train_og_a')
   test_loss = train_params['train_loss'](name = 'test_og_l')
   test_acc = train_params['train_acc'](name = 'test_og_a')
+  patience = train_params['patience']
   
   # to use tensorboard
   current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")  
@@ -123,12 +128,15 @@ def iterPruning(modelFunc,
   test_og = tf.summary.create_file_writer(test_og_log_dir)
 
   for i in range(0, num_pruning):
-    original_acc = []
+    # pruning loop
+
+    original_loss_hist = [] # record loss to determine early stopping
+    ticket_loss_hist = []   # record loss of ticket
 
     print(f"\n \n Iterative pruning round: {i} \n \n")
 
     # initialize and train network
-    model_to_prune = modelFunc(None, masks_set[i])
+    model_to_prune = modelFunc(None, init_masks_set[i])
     numParam(model_to_prune)
     
     # get init weights before training
@@ -146,21 +154,6 @@ def iterPruning(modelFunc,
                     SparseCategoricalAccuracy(name = 'train_accuracy'),
                     train_loss = tf.keras.metrics.Mean(name = 'train_loss')
                     ):
-        '''
-        Trains the model from one sample.
-
-        Parameters:  
-          - model: model to train
-          - x,y: data
-          - masks: list of masks,
-                  length equal to the no. of layers (including the biases
-                  whose masks are 1)
-          - optimizer: tf.keras.optimizer
-          - loss_fn: loss function 
-          - train_acc:
-          - train_loss: 
-        '''
-        
         with tf.GradientTape() as tape:
             y_pred = model(x, training = True)
             loss = loss_fn(y, y_pred)
@@ -169,7 +162,7 @@ def iterPruning(modelFunc,
         
         if masks is not None:
           grad_masked = []
-          # Element-wise multiplication between computed gradients and masks
+
           for grad, mask in zip(grads, masks):
             grad_masked.append(tf.math.multiply(grad, mask))
           
@@ -188,27 +181,19 @@ def iterPruning(modelFunc,
                   SparseCategoricalAccuracy(name = 'test_accuracy'),
                   test_loss = tf.keras.metrics.Mean(name = 'test_loss')
                   ):
-      
-      '''
-        Tests the model from one sample.
-
-        Parameters:  
-          - model: model to train
-          - x,y: sample and label
-          - loss_fn: loss function 
-      '''  
 
       prediction = model(x)
       loss = loss_fn(y, prediction)
       test_acc.update_state(y, prediction)
       test_loss(loss)
+###############################################################################
     for epoch in range(epochs):  
 
       print(f"Epoch {epoch} for original")
 
       for x,y in ds_train:
         train_one_step_og(model_to_prune, x,y, 
-                      masks_set[i], optimizer,
+                      train_masks_set[i], optimizer,
                       loss_fn, train_acc, train_loss)
 
       with train_og.as_default():
@@ -229,23 +214,36 @@ def iterPruning(modelFunc,
         tf.summary.scalar('test_og_accuracy', test_acc.result(), step=epoch)
 
       # stores original accuracy
-      # uses built in
-      # og_acc = model_to_prune.evaluate(ds_test)[1]
       print(f"Original model accuracy {test_acc.result()} \n")
-      original_acc.append(test_acc.result())
+      # original_acc.append(test_acc.result())
+      original_loss_hist.append(test_loss.result())
 
       test_loss.reset_states()
-      test_acc.reset_states()
+      test_acc.reset_states()  
 
-    original_best = np.max(np.array(original_acc))
-    print(f"\n Original model training finished. Highest Accuracy {original_best} \n")
+      flag = earlyStop(original_loss_hist, patience)
+
+      if flag:
+        print(f"Early stop; the original accuracy is {test_acc.result()} and loss is {test_loss.result()}")
+        break
+
+    # original_best = np.max(np.array(original_acc))
+    # print(f"\n Original model training finished. Highest Accuracy {original_best} \n")
+
+
 
     # prune and create mask using percentile
     next_masks = customPruneFC(model_to_prune, step_perc)
-    masks_set.append(next_masks)
+
+    # create mask lists that are passed to train and test one steps functions
+    mask_list = [next_masks[key].astype('float32') for key in next_masks.keys()]
+
+    train_masks_set.append(mask_list)
+    init_masks_set.append(next_masks)
 
     # initialize the lottery tickets
     re_ticket = modelFunc(pretrained_weights, next_masks)
+    # sanity check
     numParam(re_ticket)
 
     # train the lottery tickets  
@@ -272,20 +270,6 @@ def iterPruning(modelFunc,
                     SparseCategoricalAccuracy(name = 'train_accuracy'),
                     train_loss = tf.keras.metrics.Mean(name = 'train_loss')
                     ):
-        '''
-        Trains the model from one sample.
-
-        Parameters:  
-          - model: model to train
-          - x,y: data
-          - masks: list of masks,
-                  length equal to the no. of layers (including the biases
-                  whose masks are 1)
-          - optimizer: tf.keras.optimizer
-          - loss_fn: loss function 
-          - train_acc:
-          - train_loss: 
-        '''
         
         with tf.GradientTape() as tape:
             y_pred = model(x, training = True)
@@ -314,21 +298,12 @@ def iterPruning(modelFunc,
                   SparseCategoricalAccuracy(name = 'test_accuracy'),
                   test_loss = tf.keras.metrics.Mean(name = 'test_loss')
                   ):
-      
-      '''
-        Tests the model from one sample.
-
-        Parameters:  
-          - model: model to train
-          - x,y: sample and label
-          - loss_fn: loss function 
-      '''  
 
       prediction = model(x)
       loss = loss_fn(y, prediction)
       test_acc.update_state(y, prediction)
       test_loss(loss)   
-
+###############################################################################
     for epoch in range(epochs):
       # train the same number of epochs for lottery tickets
       print(f"Epoch {epoch} for lottery ticket")
@@ -337,7 +312,7 @@ def iterPruning(modelFunc,
         # in batches, train the lottery tickets
 
         train_one_step_tk(re_ticket, x,y, 
-                      next_masks, optimizer,
+                      mask_list, optimizer,
                       loss_fn, train_ticket_acc, train_ticket_loss)
 
       with train_ticket.as_default():
@@ -358,19 +333,30 @@ def iterPruning(modelFunc,
       with test_ticket.as_default():
         tf.summary.scalar('test_ticket_loss', test_ticket_loss.result(), step=epoch)
         tf.summary.scalar('test_ticket_accuracy', test_ticket_acc.result(), step=epoch)
-
+      
       ticket_acc = test_ticket_acc.result()
+      ticket_loss_hist.append(test_ticket_loss.result())
+
       test_ticket_loss.reset_states()
       test_ticket_acc.reset_states()
 
       print(f"Lottery ticket accuracy {ticket_acc} \n")
 
-      if ticket_acc > original_best:  
-        print(f"\n Early stop, ticket accuracy: {ticket_acc} \n")
-        re_ticket.save(f'saved_models/ticket_acc_{ticket_acc}'+f'pruning round_{i}')
+      ticket_flag = earlyStop(ticket_loss_hist, patience)
+
+      if ticket_flag:
+        print(f"\n Early stop, ticket accuracy: {ticket_acc} and ticket loss: {test_ticket_loss.result()} \n")
+        break
+
+      # if ticket_acc > original_best:  
+      #   print(f"\n Early stop, ticket accuracy: {ticket_acc} \n")
+      #   re_ticket.save(f'saved_models/ticket_acc_{ticket_acc}'+f'pruning round_{i}')
         # new_model = tf.keras.models.load_model('saved_model/my_model')
         # to reload the model
-        break
+        # break
+
+      
+
     print(f"\n Lottery ticket training finished. Highest Accuracy {ticket_acc} \n")
     re_ticket.save(f'saved_models/ticket_acc_{ticket_acc}'+f' pruning round_{i}')
 
