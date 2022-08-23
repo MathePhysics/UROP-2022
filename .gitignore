@@ -6,4 +6,3 @@ FindingWinningTicket/logs/*
 FindingWinningTicket/saved_models/*
 !.gitkeep
 ~/
-*.pyc
