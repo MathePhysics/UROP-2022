@@ -5,5 +5,7 @@ FindingWinningTicket/logs/*
 !.gitkeep
 FindingWinningTicket/saved_models/*
 !.gitkeep
+NeuralNetwork/models/*
+!.gitkeep
 ~/
 *.pyc
