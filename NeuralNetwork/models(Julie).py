@@ -14,19 +14,19 @@ from pyexpat import model
 import numpy as np
 import tensorflow as tf
 
-def model_bulider(input_shape = (5,),
-            num_layers   = 3,
-            hidden_units = [14,14,14],
+def model_builder(input_shape = (7,),
+            num_layers   = 2,
+            hidden_units = [14,7],
             output_shape = (1,),
             activation = 'elu',
             initializer = tf.random_normal_initializer(mean=0.0, stddev=0.1),
-            regularizer = None
             final_activation = None,
             dropout = None,
-            batchnorm = False,
+            batchnorm = False
             ): 
     """
     Returns a model for training and testing.  
+
     Args:
         - input_shape: shape of the input data
         - num_layers: int, number of hidden layers
@@ -34,13 +34,12 @@ def model_bulider(input_shape = (5,),
         - output_shape: shape of the output data
         - activation: string, activation function
         - initializer: initializer for the weights
-        - regularizer: regularizer for the weights
         - final_activation: string, activation function of final layer
         - dropout: list, dropout rate for each layer, default None
         - batchnorm: bool, specifies if batch normalization is used, default False 
     
     Output:  
-        - model: tf.keras.Model
+        - model: tf.keras.Model, compiled if compile is True
     """  
     assert num_layers == len(hidden_units), "Number of hidden units must match number of layers"
     if dropout is not None:  
@@ -58,13 +57,12 @@ def model_bulider(input_shape = (5,),
     h = tf.keras.layers.Flatten()(inputs)
 
     for i, layer in enumerate(hidden_units):
-        h = tf.keras.layers.Dense(layer, activation=activation, kernel_regularizer = regularizer 
+        h = tf.keras.layers.Dense(layer, activation=activation, 
                                   kernel_initializer = initializer)(h)
         if dropout:
             h = tf.keras.layers.Dropout(dropout[i])(h)
         if batchnorm:
             h = tf.keras.layers.BatchNormalization()(h)
-
     if final_activation is not None:
         outputs = tf.keras.layers.Dense(output_shape[0], activation=final_activation,
                                         kernel_initializer = initializer)(h)
@@ -97,7 +95,7 @@ def tuned_model(hp):
         hidden_unit = hp.Int(f'units_{i+1}', min_value=5, max_value=7)
         hidden_units.append(hidden_unit)
 
-    model = model_bulider(input_shape=input_shape_glob,
+    model = model_builder(input_shape=input_shape_glob,
                     output_shape=output_shape_glob,
                     num_layers = num_layers, 
                     hidden_units = hidden_units,
@@ -108,7 +106,7 @@ def tuned_model(hp):
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
         learning_rate, decay_steps = 4000, decay_rate = rate_decay, staircase = True)
     
-    model.compile(optimizer = keras.optimizers.Adam(learning_rate = lr_schedule), loss = tf.keras.losses.MeanAbsolutePercentageError(), 
+    model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = lr_schedule), loss = tf.keras.losses.MeanAbsolutePercentageError(), 
                   metrics = [tf.keras.metrics.MeanSquaredError()])
 
     return model
