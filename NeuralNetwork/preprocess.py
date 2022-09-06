@@ -83,7 +83,8 @@ def pipeline1(dataframe_BS, prefetch = True, scaling = True):
     Args:
         - dataframe_BS: ndarray, dataframe of the data
         - prefetch: boolean, whether to prefetch the data
-        - scaling: boolean, whether to scale the data
+        - scaling: boolean, whether to scale the data  
+        
     Output:
         - (train_ds, valid_ds, test_ds): tuple of datasets
     """  
