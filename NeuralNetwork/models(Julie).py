@@ -1,5 +1,3 @@
-
-
 import argparse
 from pyexpat import model
 import numpy as np
