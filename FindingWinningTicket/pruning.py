@@ -24,19 +24,20 @@ class pruning(object):
             - ds_train: dataset for training, already batched
             - ds_test: dataset for testing, already batched
             - model_params: dictionary of parameters
-                            contains the following entries  
-                            - 'layers'
-                            - 'initializer'
-                            - 'activation'
-                            - 'BatchNorm'
-                            - 'Dropout'
-                            - 'optimizer'
-                            - 'loss_fn'
-                            - 'metrics'
+                            contains the following entries   
+                            - 'layers': list of hidden layers sizes
+                            - 'initializer': initializer for weights
+                            - 'activation': activation function, default relu
+                            - 'final_activation': activation function for final layer, default None
+                            - 'BatchNorm': boolean, whether to use batch normalization, default False
+                            - 'Dropout': list of dropout rates, default None
+                            - 'optimizer': optimizer for training, default Adam
+                            - 'loss_fn': loss function, default SparseCategoricalCrossentropy
+                            - 'metrics': metrics for training, default SparseCategoricalAccuracy
             - train_params: dictionary of parameters for training
                             contains the following entries
-                            - 'train_loss': 
-                            - 'train_acc':
+                            - 'train_loss': loss object, default Mean
+                            - 'train_acc': accuracy object, default SparseCategoricalAccuracy
             - epochs: epochs to train the model before pruning
             - num_pruning: no. of rounds to prune
             - step_perc: percentage to prune
