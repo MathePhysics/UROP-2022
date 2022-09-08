@@ -3,7 +3,7 @@ from pyexpat import model
 import numpy as np
 import tensorflow as tf
 
-def model_builder(dim,
+def model_builder_hs(dim,
             num_layers   = 2,
             hidden_units = [14,7],
             output_shape = (1,),
@@ -66,7 +66,7 @@ def model_builder(dim,
     return model   
 
 
-def tuned_model(hp):
+def tuned_model_hs(hp):
     """
     Returns a compiled hyperModel for keras tuner. 
 
@@ -89,7 +89,7 @@ def tuned_model(hp):
         dropout = hp.Float(f'dropout_{i+1}', min_value=0.0, max_value=0.5, step=0.1)
         dropouts.append(dropout)
 
-    model = model_bulider(dim=dim_glob,
+    model = model_builder_hs(dim=dim_glob,
                     output_shape=output_shape_glob,
                     num_layers = num_layers, 
                     hidden_units = hidden_units,
@@ -103,7 +103,7 @@ def tuned_model(hp):
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
         learning_rate, decay_steps = 4000, decay_rate = rate_decay, staircase = True)
     
-    model.compile(optimizer = keras.optimizers.Adam(learning_rate = lr_schedule), loss = tf.keras.losses.MeanAbsolutePercentageError(), 
+    model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = lr_schedule), loss = tf.keras.losses.MeanAbsolutePercentageError(), 
                   metrics = [tf.keras.metrics.MeanSquaredError()])
 
     return model  
