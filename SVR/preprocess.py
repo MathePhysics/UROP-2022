@@ -1,3 +1,4 @@
+import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 
@@ -26,4 +27,14 @@ def propocessed(data, shuffle = True):
     x_train = scaler.fit_transform(x_train)
     x_test = scaler.fit_transform(x_test)
 
-    return (x_train, y_train) , (x_test, y_test)
+    return (x_train, y_train) , (x_test, y_test)  
+
+
+def makeBS(df):
+    dataframe_BS = np.vstack((df['strike'].values,
+                      df['underlyings_price'].values,
+                      df['days_to_maturity'].values,
+                      df['volatility'].values,
+                      df['rate'].values,
+                      df['contract_price'].values)).T  
+    return dataframe_BS
