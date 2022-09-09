@@ -2,7 +2,8 @@ import tensorflow as tf
 
 
 def compile_and_fit(model, optimizer, loss, num_epochs, train_dataset, 
-                    validation_dataset=None, metrics=None, callbacks=None):
+                    validation_dataset=None, metrics=None, callbacks=None,
+                    verbose=False):
     """
     Returns history of training.  
 
@@ -14,10 +15,11 @@ def compile_and_fit(model, optimizer, loss, num_epochs, train_dataset,
         - train_dataset: tf.data.Dataset, dataset for training
         - validation_dataset: tf.data.Dataset, dataset for validation
         - metrics: tf.keras.metrics, metrics to be used for evaluation
-        - callbacks: list of tf.keras.callbacks.Callback, callbacks to be used for training
+        - callbacks: list of tf.keras.callbacks.Callback, callbacks to be used for training  
+        - verbose: bool, specifies if training progress is printed to stdout
     """  
     
     model.compile(optimizer, loss, metrics)
     history = model.fit(train_dataset, validation_data=validation_dataset,
-              epochs = num_epochs, callbacks = callbacks, verbose=0)
+              epochs = num_epochs, callbacks = callbacks, verbose=verbose)
     return history
