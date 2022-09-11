@@ -31,6 +31,16 @@ def propocessed(data, shuffle = True):
 
 
 def makeBS(df):
+    """
+    Extract inputs to BS model from the dataframe passed in
+    
+    Arg:
+        df: pd.DataFrame, contains all data read from data.csv
+
+    Output:
+        np.array: contains inputs to BS model 
+    """
+    
     dataframe_BS = np.vstack((df['strike'].values,
                       df['underlyings_price'].values,
                       df['days_to_maturity'].values,
