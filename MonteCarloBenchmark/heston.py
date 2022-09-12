@@ -215,3 +215,53 @@ def generate_heston_paths_vec(df, num_samples, steps=1000, num_sims=100000):
     S_call = np.exp(-1 * r * T) * np.sum(np.maximum(S_t-K,0), axis = 1 )/ num_sims
     
     return S_call
+
+def generate_and_store(df, dims, num_samples, store_data = False, store_time = False):
+    """
+    Generate inputs for given dimensions and compute option prices using heston model.
+    Stored inputs and option prices in csv files under data directory. 
+    Store Wall-Clock time in another csv files under heston directory.
+
+    Args:  
+        - df: pd.DataFrame, the dataframe that contains option information
+        - dims: list, the dimensions to generate inputs for
+        - num_samples, int, num of samples to generate for each dimension
+        - store_data: boolean, if True, then store inputs in csv files, default to False
+        - store_time: boolean, if True, then store the Wall-Clock time in csv file, default to False
+    """
+    times_list = []
+    for dim in dims:
+        # prepare the dataframe containing all heston inputs
+        begin_1 = time.time()
+        inputs_array = generate_inputs_nn(df, dim, num_samples)
+        inputs = pd.DataFrame(inputs_array, columns = ['underlyings_price', 'rho', 'days_to_maturity', 
+                        'strike', 'volatility','mean_volatility','reversion', 'vol_of_var','rate'])
+        end_1 = time.time()
+        generate_inputs_time = end_1 - begin_1
+        
+        # compute option prices using heston model and print time
+        begin_2 = time.time()
+        result = generate_heston_paths_vec(inputs, num_samples, steps=100, num_sims=1000)
+        end_2 = time.time()
+        heston_pricing_time = end_2 - begin_2
+        
+        # flatten underlyings_price and rho as they are in vectors
+        inputs['contract_price'] = result
+        inputs = flattenDim(dim, inputs)
+        
+        # store to data directory
+        parent_path = str(pathlib.Path(os.getcwd()).parent)
+        begin_3 = time.time()
+        if store_data:
+            inputs.to_csv(os.path.join(parent_path, f'data/{num_samples}_basket_data_{dim}.csv'))
+        end_3 = time.time()
+        saving_time = end_3 - begin_3
+        
+        times_list.append([dim, 7+2*dim, generate_inputs_time, heston_pricing_time, saving_time, time.time() - begin_1])
+    
+    # store the Wall-Clock time
+    if store_time:
+        times = pd.DataFrame(times_list, columns=['Dimension', 'Feature Vector Length',
+                                            'Generating Inputs Time', 'Heston Pricing Time',
+                                            'Saving Time', 'Total Time Taken'])
+        times.to_csv(os.path.join(parent_path, f'MonteCarloBenchmark/heston_times.csv'), index=False)
