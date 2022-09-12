@@ -278,9 +278,13 @@ def tuned_model(hp):
 
 class DenseResidualBlock(tf.keras.layers.Layer):
     
-    def __init__(self, layer_per_block=[10,10,10], activation='elu', 
+    def __init__(self, 
+                layer_per_block=[10,10,10], 
+                activation='elu', 
                 initializer='random_uniform',
-                l2reg_coeff=0.01, **kwargs):
+                l2reg_coeff=0.01, 
+                dropout = True,
+                **kwargs):
         """
         Class initializer for a custom dense residual block with batch normalization.  
 
@@ -289,6 +293,7 @@ class DenseResidualBlock(tf.keras.layers.Layer):
             - activation: string, activation function to use in the dense layers
             - initializer: tf.keras.initializers, initializer to use in the dense layer
             - l2reg_coeff: coefficient for L2 regularization
+            - dropout: boolean, whether to use dropout or not, default True
             - **kwargs: keyword arguments for the parent class  
         """  
 
@@ -298,6 +303,7 @@ class DenseResidualBlock(tf.keras.layers.Layer):
         self.activation = activation
         self.layer_per_block = layer_per_block
         self.initializer = initializer
+        self.dropout = dropout
 
 
     def build(self, input_shape):
@@ -310,6 +316,8 @@ class DenseResidualBlock(tf.keras.layers.Layer):
                                                     name='dense_{}'.format(i+1)))
                                                     
             setattr(self, 'bn_{}'.format(i+1), BatchNormalization(name='bn_{}'.format(i+1)))
+            if self.dropout:
+                setattr(self, 'dropout_{}'.format(i+1), Dropout(0.2, name='dropout_{}'.format(i+1)))
 
 
     def call(self, inputs, training=False):
@@ -317,5 +325,7 @@ class DenseResidualBlock(tf.keras.layers.Layer):
         for i in range(len(self.layer_per_block)):
             h = getattr(self, 'dense_{}'.format(i+1))(h)
             h = getattr(self, 'bn_{}'.format(i+1))(h, training=training)
+            if self.dropout:
+                h = getattr(self, 'dropout_{}'.format(i+1))(h, training=training)
         return h + inputs
 
