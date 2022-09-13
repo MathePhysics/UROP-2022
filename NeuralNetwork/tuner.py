@@ -158,6 +158,54 @@ def tuned_model(hp):
 
     return model
 
+##################################################################################################
+############################################################################################################
+def tuneSine(hp):
+    """
+    Returns a compiled hyperModel for keras tuner.  The input shape is limited to (5,) and out shape to (1,)
+
+    - Number of layers: 1-5
+    - Number of hidden units: 5-7, step 1
+    - Learning rate: 1e-4 - 1e-2, log sampling
+    - Rate of lr decay: 0.85-0.9995
+    - l1_coeff: 1e-8 - 1e-6.5, log sampling
+    - l2_coeff: 1e-8 - 1e-6.5, log sampling
+    """  
+
+    # defining a set of hyperparameters for tuning and a range of values for each
+    num_layers = hp.Int('num_layers', min_value=1, max_value=5) 
+
+    # https://stats.stackexchange.com/questions/402618/can-sinx-be-used-as-activation-in-deep-learning
+
+    learning_rate = hp.Float('learning_rate', min_value=1e-4, max_value=0.01, sampling = 'log')
+    rate_decay = hp.Float('rate_decay', min_value=0.85, max_value=0.9995)
+    l1_reg = hp.Float('l1_coeff', min_value=10**(-8), max_value=10**(-6.5))
+    l2_reg = hp.Float('l2_coeff', min_value=10**(-8), max_value=10**(-6.5))
+    
+    list_of_layers = []
+
+    for i in range(num_layers):
+        hidden_unit = hp.Int(f'units_{i+1}', min_value=50, max_value=300, step=50)
+        list_of_layers.append(tf.keras.layers.Dense(hidden_unit, kernel_regularizer = tf.keras.regularizers.l1_l2(l1_reg,l2_reg)))
+        list_of_layers.append(tf.keras.layers.Lambda(lambda x: tf.math.sin(x)))
+
+    list_of_layers.append(tf.keras.layers.Dense(1))
+
+    model = tf.keras.Sequential(list_of_layers)
+
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+        learning_rate, decay_steps = 4000, decay_rate = rate_decay, staircase = True)
+    
+    # perhaps a little change here with loss and metrics
+    model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = lr_schedule), loss = tf.keras.losses.MeanAbsolutePercentageError(), 
+                metrics = [tf.keras.metrics.MeanSquaredError()])
+
+    return model
+
+
+##################################################################################################
+
+
 ############################################################################################################
 # for the moment being, we only use the RandomSearch tuner, 
 # as other tuners need more thorough explanation
