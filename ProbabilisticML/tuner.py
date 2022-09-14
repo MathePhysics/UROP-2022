@@ -14,6 +14,7 @@ from tensorflow.keras.metrics import MeanSquaredError
 
 
 from models import getMDN, getBNN
+from distributions import *
 
 
 tfpl = tfp.layers
@@ -70,4 +71,52 @@ def tuned_MDN(hp):
                 metrics = [tf.keras.metrics.MeanSquaredError(),
                             tf.keras.metrics.MeanAbsolutePercentageError(name='accuracy')])    
 
-    return model
+    return model  
+
+
+def tuned_BNN(hp):  
+    """
+    Returns a compiled hyperModel for keras tuner.  
+
+    - Number of layers: 1-5
+    - Number of hidden units: 5-7, step 1
+    - Learning rate: 1e-4 - 1e-2, log sampling
+    - Rate of lr decay: 0.85-0.9995
+    - l1_coeff: 1e-8 - 1e-6.5, log sampling
+    - l2_coeff: 1e-8 - 1e-6.5, log sampling
+    - Loss: 
+    - Metrics:
+    """   
+
+    num_layers = hp.Int('num_layers', min_value=1, max_value=5) 
+
+    activation = hp.Choice('activation', ['sigmoid', 'tanh'])
+
+    learning_rate = hp.Float('learning_rate', min_value=1e-4, max_value=0.01, sampling = 'log')
+    rate_decay = hp.Float('rate_decay', min_value=0.85, max_value=0.9995)    
+    
+    hidden_units = []
+    for i in range(num_layers):
+        hidden_unit = hp.Int(f'units_{i+1}', min_value=5, max_value=300, step=50)
+        hidden_units.append(hidden_unit)
+
+    model = getBNN(input_shape=(5,),
+                    output_shape=(1,),
+                    num_layers = num_layers, 
+                    hidden_units = hidden_units,
+                    activation = activation,
+                    prior = fixedPrior,
+                    posterior = posterior_mean_field,
+                    train_size = 4096
+                    )
+
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+        learning_rate, decay_steps = 4000, decay_rate = rate_decay, staircase = True)
+    
+    # perhaps a little change here with loss and metrics
+    model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = lr_schedule), 
+                loss = lambda y, model: -model.log_prob(y), 
+                metrics = [tf.keras.metrics.MeanSquaredError(),
+                            tf.keras.metrics.MeanAbsolutePercentageError(name='accuracy')])    
+
+    return model 
