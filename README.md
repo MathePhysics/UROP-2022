@@ -37,14 +37,13 @@ All neural network models are tuned using the `RandomSearch` tuner in `tensorflo
 
 We provide some benchmarks for our methods.  MAPE stands for mean absolute percentage error. The time includes the training time and tuning time for neural networks.
 
-| Methods       | MAPE (%)      | Time          |
-| ------------- | ------------- | ------------- |
-| Black-Scholes | Content Cell  |
-| Heston        | Content Cell  |
-| MLP           | Content Cell  |
-| BNN           |
-| MDN
-| SVM
+| Methods       | MSE           | MAPE   | Time        |
+| ------------- | ------------- |--------| ------------|
+| Black-Scholes | 0.2216        | 101.78%| 0.021s      |
+| MLP           | Content Cell  ||                     |
+| BNN           | 0.0148        |45.12%| 140.74s       |
+| MDN           | 0.0048        |32.46%| 165.01s       |
+| SVM           | 0.0053        |40.05%| 1463.64s      |
 
 - MLP: Multilayer Perceptron
 - BNN: Bayesian Neural Network
