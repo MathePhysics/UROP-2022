@@ -4,7 +4,7 @@ import keras_tuner
 import numpy as np
 import tensorflow as tf 
 
-from models import model_builder_basket, getModel
+from models import getModel
 
 
 ##################################################################################################
@@ -138,7 +138,7 @@ def tuned_model(hp):
     
     hidden_units = []
     for i in range(num_layers):
-        hidden_unit = hp.Int(f'units_{i+1}', min_value=50, max_value=300, step=50)
+        hidden_unit = hp.Int(f'units_{i+1}', min_value=50, max_value=500, step=50)
         hidden_units.append(hidden_unit)
 
     model = getModel(input_shape=input_shape_glob,
