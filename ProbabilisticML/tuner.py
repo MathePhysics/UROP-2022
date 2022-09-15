@@ -115,8 +115,7 @@ def tuned_BNN(hp):
     
     # perhaps a little change here with loss and metrics
     model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = lr_schedule), 
-                loss = lambda y, model: -model.log_prob(y), 
-                metrics = [tf.keras.metrics.MeanSquaredError(),
-                            tf.keras.metrics.MeanAbsolutePercentageError(name='accuracy')])    
+                loss = tf.keras.losses.MeanAbsolutePercentageError(name='loss'), 
+                metrics = [tf.keras.metrics.MeanSquaredError(name='accuracy')])
 
     return model 
