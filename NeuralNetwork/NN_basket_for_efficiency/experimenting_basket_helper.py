@@ -161,9 +161,9 @@ def get_train_time(begin_train_rn,begin_train_hb,begin_train_bo, end_train_rn, e
     """
     train_time = []
     for i in range(len(dims)):
-        if i in [4,13]:
+        if i in [1,7,13]:
             train_time.append(np.array(end_train_rn[i])-np.array(begin_train_rn[i]))
-        elif i in [1, 7]:
+        elif i in [16]:
             train_time.append(np.array(end_train_hb[i])-np.array(begin_train_hb[i]))
         else:
             train_time.append(np.array(end_train_bo[i])-np.array(begin_train_bo[i]))
