@@ -2,7 +2,6 @@ import time
 import numpy as np
 import pandas as pd
 
-from models_hs import *
 
 # define global variables
 dims = [1, 4, 7, 10, 13, 16]
