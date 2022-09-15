@@ -46,7 +46,7 @@ We provide some benchmarks for our methods.  MAPE stands for mean absolute perce
 | MDN
 | SVM
 
-- MLP: multilayer perceptron.
+- MLP: Multilayer Perceptron
 - BNN: Bayesian Neural Network
 - MDN: Mixture Density Network
 - SVM: Support Vector Machine

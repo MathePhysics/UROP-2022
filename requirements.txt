@@ -6,3 +6,4 @@ tensorflow>=2.6.0
 tensorflow-datasets>=4.4.0
 tensorflow-probability>=0.13.0
 xgboost>=1.4.2
+matplotlib>=3.4.1
