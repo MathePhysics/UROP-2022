@@ -63,15 +63,16 @@ def getModel(input_shape = (7,),
 
 
 def model_builder_basket(dim,
-            num_layers   = 2,
-            hidden_units = [14,7],
-            output_shape = (1,),
-            activation = 'elu',
-            initializer = tf.random_normal_initializer(mean=0.0, stddev=0.1),
-            final_activation = None,
-            dropout = None,
-            batchnorm = False
-            ): 
+                num_layers   = 2,
+                hidden_units = [14,7],
+                output_shape = (1,),
+                activation = 'elu',
+                regularizer = None,
+                initializer = tf.keras.initializers.he_uniform(),
+                final_activation = 'linear',
+                dropout = None,
+                batchnorm = False
+                ): 
     """
     Returns a model for training and testing, used for basket options.  
 
@@ -109,18 +110,19 @@ def model_builder_basket(dim,
     h = Flatten()(inputs)
 
     for i, layer in enumerate(hidden_units):
-        h = Dense(layer, activation=activation, 
-                                  kernel_initializer = initializer)(h)
+        h = tf.keras.layers.Dense(layer, activation=activation, kernel_regularizer= regularizer,
+                                    kernel_initializer = initializer)(h)
         if dropout:
-            h = Dropout(dropout[i])(h)
+                h = tf.keras.layers.Dropout(dropout[i])(h)
         if batchnorm:
-            h = BatchNormalization()(h)
+                h = tf.keras.layers.BatchNormalization()(h)
+
     if final_activation is not None:
-        outputs = Dense(output_shape[0], activation=final_activation,
-                                        kernel_initializer = initializer)(h)
+        outputs = tf.keras.layers.Dense(output_shape[0], activation=final_activation,
+                                            kernel_initializer = initializer)(h)
     else:
-        outputs = Dense(output_shape[0], 
-                                        kernel_initializer = initializer)(h)
+        outputs = tf.keras.layers.Dense(output_shape[0], 
+                                            kernel_initializer = initializer)(h)
 
     model = tf.keras.Model(inputs=inputs, outputs=outputs)  
 
@@ -134,49 +136,36 @@ def tuned_model_basket(hp):
     """  
     # defining a set of hyperparameters for tuning and a range of values for each
     num_layers = hp.Int('num_layers', min_value=1, max_value=5) 
-
-    activation = hp.Choice('activation', 
-        ['elu','tanh', 'ReLu', 'sigmoid', 'gelu','LeakyReLU']) # do you really need all of these?
-
+    activation = hp.Choice('activation', ['elu','tanh', 'relu', 'sigmoid'])
     learning_rate = hp.Float('learning_rate', min_value=10**(-3), max_value=0.01)
-
     rate_decay = hp.Float('rate_decay', min_value=0.85, max_value=0.9995)
-
     l1_reg = hp.Float('l1_regularizer', min_value=10**(-8), max_value=10**(-6.5))
     l2_reg = hp.Float('l1_regularizer', min_value=10**(-8), max_value=10**(-6.5))
-
-    initializer = hp.Choice('initializer', 
-        ['uniform', 'glorot_uniform', 'he_uniform', 'normal']) # do you really need all of these?
-
     batchnorm = hp.Boolean(name = 'batchnorm')
-    
+        
     hidden_units, dropouts = [],[]
-
     for i in range(num_layers):
         hidden_unit = hp.Int(f'units_{i+1}', min_value=5, max_value=7)
         hidden_units.append(hidden_unit)
-        dropout = hp.Float(f'dropout_{i+1}', min_value=0.0, max_value=0.5, step=0.1) # do you really need all of these?
+        dropout = hp.Float(f'dropout_{i+1}', min_value=0.0, max_value=0.5, step=0.1)
         dropouts.append(dropout)
 
-    model = model_builder_basket(dim=dim_glob,
-                    output_shape=output_shape_glob,
-                    num_layers = num_layers, 
-                    hidden_units = hidden_units,
-                    dropout = dropouts,
-                    activation = activation,
-                    initializer = initializer,
-                    batchnorm = batchnorm,
-                    regularizer = tf.keras.regularizers.l1_l2(l1_reg,l2_reg)
-                    )
+    model = model_builder_basket(dim,
+                        num_layers = num_layers, 
+                        hidden_units = hidden_units,
+                        dropout = dropouts,
+                        activation = activation,
+                        batchnorm = batchnorm,
+                        regularizer = tf.keras.regularizers.l1_l2(l1_reg,l2_reg)
+                        )
 
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        learning_rate, decay_steps = 4000, decay_rate = rate_decay, staircase = True)
-    
-    model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = lr_schedule), 
-                loss = tf.keras.losses.MeanAbsolutePercentageError(), 
-                metrics = [tf.keras.metrics.MeanSquaredError()])
+            learning_rate, decay_steps = 4000, decay_rate = rate_decay, staircase = True)
+        
+    model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = lr_schedule), loss = tf.keras.losses.MeanAbsolutePercentageError(), 
+                    metrics = [tf.keras.metrics.MeanSquaredError()])
 
-    return model   
+    return model  
 
 
 def tuneLayer(hp):
