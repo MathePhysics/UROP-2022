@@ -46,6 +46,7 @@ All neural network models are tuned using the `RandomSearch` tuner in `Tensorflo
 #### Vanilla options
 We provide some benchmarks for our methods. MSE stands for mean squared error and MAPE stands for mean absolute percentage error. The time for neural networks includes the training and testing time.  
 
+<center>
 
 | Methods       | MSE           | MAPE   | Time        |
 | ------------- | ------------- |--------| ------------|
@@ -55,6 +56,8 @@ We provide some benchmarks for our methods. MSE stands for mean squared error an
 | BNN           | 0.0148        | 44.12% | 140.74s     |
 | MDN           | 0.0048        | 32.21% | 165.01s     |
 | SVM           | 0.0053        | 40.05% | 1463.64s    |
+
+</center>
 
 
 - MLP: Multilayer Perceptron, 5 layers with `[50,50,50,50,50]` neurons, using exponential linear unit activation  
