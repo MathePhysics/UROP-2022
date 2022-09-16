@@ -136,7 +136,7 @@ Bishop, C.M. (1994). Mixture density networks.
 Drucker, H., Burges, C.J., Kaufman, L., Smola, A., & Vapnik, V.N. (1996). Support Vector Regression Machines. NIPS.
 
 <a id = "4">[4]</a>
-Black, F., & Scholes, M. (1973). The Pricing of Options and Corporate Liabilities. Journal of Political Economy, 81(3), 637–654. http://www.jstor.org/stable/1831029
+Black, F., & Scholes, M. (1973). The Pricing of Options and Corporate Liabilities. Journal of Political Economy, 81(3), 637–654. 
   
 <a id = "5">[5]</a>
 Heston, S. (1993). A Closed-Form Solution for Options with Stochastic Volatility with Applications to Bond and Currency Options. Review of Financial Studies, 6, 327-343.
