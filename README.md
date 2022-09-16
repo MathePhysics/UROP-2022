@@ -13,44 +13,64 @@
 
 ## Background   
 
-Option contracts are a financial derivative representing the right but not obligation to purchase (a **call** option) or sell (a **put** option) a particular security or collection of securities (**basket**)
+Option contracts are a financial derivative representing the right but not obligation to purchase (**call** option) or sell (**put** option) a particular security or collection of securities (**basket**)
 
 ## Data Sourcing  
 
-We obtained the European options data from 2001 to 2020 using a WRDS subscription. Cleaning and pre-processing were performed to remove outliers...
+We obtained the European options data from 2001 to 2020 using a WRDS subscription. Cleaning and pre-processing were performed to remove outliers and degenerated values.  
+The data were not standardized or mapped into the unit interval, as we believe that normal standardization procedures would obstruct our model from learning fluctuations and trends in the data.  
+However, relevant functions are implemented in `preprocess.py` and we can experiment with it easily.
 
 ## Methodology   
 
 We have implemented and experimented with various machine learning algorithms, including the standard multilayer perceptron, Bayesian Neural Network [[1]](#1), Mixture Density Network [[2]](#2), and Support Vector Machine for regression [[3]](#3).  
 
-Each of those methods have their own strengths as well as weakness.  
+Each of those methods has its strengths as well as weakness.  
 
-For probabilistic machine learning methods, while their training takes longer to converge, they are able to provide a confidence level for estimation.   
+For probabilistic machine learning methods, while their training takes longer to converge, they can provide a confidence level for estimation.   
 
 For methods like the standard multilayer perceptron and the support vector machine, their training takes only a relatively short amount of time thanks to modern computational advancements, but they can only provide a point estimate.  
 
 Benchmarks for the Black Scholes and Heston model are run on Apple M1 with 8.00 GB of RAM.  
 
-All neural network models are tuned using the `RandomSearch` tuner in `tensorflow` and trained for 100 epochs using data obtained above on Google Colab using a Nvidia Tesla V100 GPU.  
+All neural network models are tuned using the `RandomSearch` tuner in `tensorflow` and trained for 100 epochs using data obtained above on Google Colab using an Nvidia Tesla T4 GPU.  
 
 ## Benchmarks    
 
-We provide some benchmarks for our methods.  MAPE stands for mean absolute percentage error. The time includes the training time and tuning time for neural networks.
+We provide some benchmarks for our methods.  MAPE stands for mean absolute percentage error. The time includes the training time and tuning time for neural networks.  
+
+<center>  
 
 | Methods       | MSE           | MAPE   | Time        |
 | ------------- | ------------- |--------| ------------|
 | Black-Scholes | 0.2216        | 101.78%| 0.021s      |
-| MLP           | Content Cell  ||                     |
-| BNN           | 0.0148        |45.12%| 140.74s       |
-| MDN           | 0.0048        |32.46%| 165.01s       |
-| SVM           | 0.0053        |40.05%| 1463.64s      |
+| MLP           | 0.0035        | 24.30% | 337.99s     |
+| sinMLP        | 0.0034        | 24.18% | 517.98s     |
+| BNN           | 0.0148        | 44.12% | 140.74s     |
+| MDN           | 0.0048        | 32.21% | 165.01s     |
+| SVM           | 0.0053        | 40.05% | 1463.64s    |
 
-- MLP: Multilayer Perceptron
-- BNN: Bayesian Neural Network
-- MDN: Mixture Density Network
-- SVM: Support Vector Machine
+</center>
 
-## Discussions    
+- MLP: Multilayer Perceptron, 5 layers with `[50,50,50,50,50]` neurons, using exponential linear unit activation  
+
+- sinMLP: the same MLP as above but using $\sin$ activation function in an attempt to better model the fluctuations
+
+- BNN: Bayesian Neural Network, 3 layers with `[300,100,100]` neurons with fixed normal priors and trainable normal posterior, using sigmoid activation
+
+- MDN: Mixture Density Network, 5 layers with `[280,50,50,210]` neurons, using sigmoid activation with 70 components
+
+- SVM: Support Vector Machine for regression using radial basis function as kernel  
+
+The neural network models are tuned with a built-in `BayesianOptimization` tuner in `Tensorflow`.  
+Both MLP models are trained for 100 epochs with a batch size of 32, while the BNN and MDN are trained for 500 epochs with a batch size of 128 to alleviate the effect of noisy gradients.   
+The comparison with the Heston model using Monte Carlo simulation is excluded, as applying it to our data is infeasible due to the extremely long runtime.   
+
+## Discussions and Outlooks   
+
+It appears that machine learning methods are indeed suitable for pricing options. Once a neural network has been trained, it can be deployed and inference can be done in a relatively short time even on a CPU. Moreover, neural network models can leverage the computing power of modern GPUs, which speed up their training significantly compared to SVMs due to parallelization. 
+
+
 
 ## References  
 
