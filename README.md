@@ -97,12 +97,17 @@ Multilayer Perceptron:
 <img src="./assets/NN training and testing time.png">
 </p>
 <p align="center">
+<em>The training and testing time of MLPs </em>
+</p>
+
 
 Comparison:
 <p align="center">
 <img src="./assets/Comparison between Heston and NN.png">
 </p>
 <p align="center">
+<em>The training and testing time of MLPs compared with the Heston model</em>
+</p>
 
 MLP structures used for different basket sizes:
 
@@ -144,3 +149,6 @@ Black, F., & Scholes, M. (1973). The Pricing of Options and Corporate Liabilitie
   
 <a id = "5">[5]</a>
 Heston, S. (1993). A Closed-Form Solution for Options with Stochastic Volatility with Applications to Bond and Currency Options. Review of Financial Studies, 6, 327-343.
+
+<a id = "6">[6]</a>
+Tracy, C. (2021). Efficiently Pricing Financial Derivatives Using Neural Networks
