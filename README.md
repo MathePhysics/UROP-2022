@@ -46,7 +46,7 @@ All neural network models are tuned using the `RandomSearch` tuner in `Tensorflo
 #### Vanilla options
 We provide some benchmarks for our methods. MSE stands for mean squared error and MAPE stands for mean absolute percentage error. The time for neural networks includes the training and testing time.  
 
-
+<center>
   
 | Methods       | MSE           | MAPE   | Time        |
 | :-------------: | :-------------: |:-------------:| :-------------:|
@@ -57,7 +57,7 @@ We provide some benchmarks for our methods. MSE stands for mean squared error an
 | MDN           | 0.0048        | 32.21% | 165.01s     |
 | SVM           | 0.0053        | 40.05% | 1463.64s    |
 
-
+</center>
 
 - MLP: Multilayer Perceptron, 5 layers with `[50,50,50,50,50]` neurons, using exponential linear unit activation  
 
@@ -102,6 +102,8 @@ Comparison:
 
 MLP structures used for different basket sizes:
 
+<center>
+  
 |Basket Size|Number of Layers|Units| Activation Function|Batch normalization | 
 | :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
 |1|5|[6,6,7,7,7]	|tanh|True | 
@@ -110,6 +112,8 @@ MLP structures used for different basket sizes:
 |10|5|[5,5,5,5,5]	|sigmoid|  False|
 |13|3|[6,5,6]	|elu|  False|
 |16|1|[6]	|relu|  False|
+  
+</center>
 
 We used the built-in `RandomSearch`, `Hyperband` and `BayesianOptimization` tuners in `Tensorflow`. MLP models for basket sizes 1, 7 and 13 are tuned with `RandomSearch` tuner, basket sizes of 4 and 10 are tuned with `BayesianOptimization` and basket size of 16 is tuned with `Hyperband`. All MLP models are trained for 10 epochs with a batch size of 32. Further details are in `experimenting_basket.ipynb`. 
 
