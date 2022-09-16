@@ -13,13 +13,15 @@
 
 ## Background   
 
-Option contracts are a financial derivative representing the right but not obligation to purchase (**call** option) or sell (**put** option) a particular security or collection of securities (**basket**)
+Option contracts are a financial derivative representing the right but not obligation to purchase (**call** option) or sell (**put** option) a particular security or collection of securities (**basket**). 
 
 ## Data Sourcing  
 
-We obtained the European options data from 2001 to 2020 using a WRDS subscription. Cleaning and pre-processing were performed to remove outliers and degenerated values.  
+We obtained the European options data from 2002 to 2021 using a WRDS subscription. Cleaning and pre-processing were performed to remove outliers and degenerated values.  
 The data were not standardized or mapped into the unit interval, as we believe that normal standardization procedures would obstruct our model from learning fluctuations and trends in the data.  
 However, relevant functions are implemented in `preprocess.py` and we can experiment with it easily.
+
+WRDS does not provide basket option data, therefore, we synthesize basket options from vanilla options. Further details are in `heston_basket_helper.py`.
 
 ## Methodology   
 
@@ -27,19 +29,23 @@ We have implemented and experimented with various machine learning algorithms, i
 
 Each of those methods has its strengths as well as weakness.  
 
-For probabilistic machine learning methods, while their training takes longer to converge, they can provide a confidence level for estimation.   
+For support vector machine, its trainning time varies significantly with the parameters set but it can provide relatively low errors compared to other benchmarks like Black Scholes and Heston model.
 
-For methods like the standard multilayer perceptron and the support vector machine, their training takes only a relatively short amount of time thanks to modern computational advancements, but they can only provide a point estimate.  
+For probabilistic machine learning methods, while their training takes longer to converge, they can provide a confidence level for estimation.
 
-Benchmarks for the Black Scholes and Heston model are run on Apple M1 with 8.00 GB of RAM.  
+For standard multilayer perceptron, its training takes only a relatively short amount of time thanks to modern computational advancements, but it can only provide a point estimate.  
 
-All neural network models are tuned using the `RandomSearch` tuner in `tensorflow` and trained for 100 epochs using data obtained above on Google Colab using an Nvidia Tesla T4 GPU.  
+Benchmarks for the Black Scholes and Heston model are run on Apple M1 with 8.00 GB of RAM.
+
+Support vector machine is tuned using the `GridSearchCV` tuner in `scikit-learn` using 3-Folds cross-validator and is run on Apple M2 with 8.00 GB of RAM.  
+
+All neural network models are tuned using the `RandomSearch` tuner in `Tensorflow` and trained for 100 epochs using data obtained above on Google Colab using an Nvidia Tesla T4 GPU.  
 
 ## Benchmarks    
 
-We provide some benchmarks for our methods.  MAPE stands for mean absolute percentage error. The time includes the training time and tuning time for neural networks.  
+#### Vanilla options
+We provide some benchmarks for our methods. MSE stands for mean squared error and MAPE stands for mean absolute percentage error. The time for neural networks includes the training and testing time.  
 
-<center>  
 
 | Methods       | MSE           | MAPE   | Time        |
 | ------------- | ------------- |--------| ------------|
@@ -50,7 +56,6 @@ We provide some benchmarks for our methods.  MAPE stands for mean absolute perce
 | MDN           | 0.0048        | 32.21% | 165.01s     |
 | SVM           | 0.0053        | 40.05% | 1463.64s    |
 
-</center>
 
 - MLP: Multilayer Perceptron, 5 layers with `[50,50,50,50,50]` neurons, using exponential linear unit activation  
 
@@ -65,6 +70,46 @@ We provide some benchmarks for our methods.  MAPE stands for mean absolute perce
 The neural network models are tuned with a built-in `BayesianOptimization` tuner in `Tensorflow`.  
 Both MLP models are trained for 100 epochs with a batch size of 32, while the BNN and MDN are trained for 500 epochs with a batch size of 128 to alleviate the effect of noisy gradients.   
 The comparison with the Heston model using Monte Carlo simulation is excluded, as applying it to our data is infeasible due to the extremely long runtime.   
+
+####Basket options
+
+We used Monte Carlo Heston Benchmark for basket options. As the data for basket options are synthetic, we only compared the time efficiency.
+
+Monte Carlo Heston Benchmark:
+
+|Basket Size|Feature Vector Length|Generating Inputs Time|Heston Pricing Time|Saving Time|Total Time Taken|
+| ------------- | ------------- |--------| ------------|------------- |--------| 
+|1|9|0.047|5.395|0.010|5.454|
+|4	|15	|0.036|21.748|	0.014|	21.804|
+|7	|21	|0.036|	37.925|	0.019|	37.990|
+|10|	27	|0.036|54.141|0.024	|54.215|
+|13|	33|	0.036|70.365	|0.027	|70.447|
+|16|	39|	0.037|88.827|0.040	|88.945|
+
+Multilayer Perceptron:
+<p align="center">
+<img src="./assets/NN training and testing time.png">
+</p>
+<p align="center">
+
+Comparison:
+<p align="center">
+<img src="./assets/Comparison between Heston and NN.png">
+</p>
+<p align="center">
+
+MLP structures used for different basket sizes:
+
+|Basket Size|Number of Layers|Units| Activation Function|Batch normalization | 
+| ------------- | ------------- || ------------- | ------------- | ------------- | 
+|1|5|[6,6,7,7,7]	|tanh|True | 
+|4|5|[7,5,5,5,5]	|sigmoid|  False | 
+|7|2|[7,5]	|elu| False|
+|10|5|[5,5,5,5,5]	|sigmoid|  False|
+|13|3|[6,5,6]	|elu|  False|
+|16|1|[6]	|relu|  False|
+
+We used the built-in `RandomSearch`, `Hyperband` and `BayesianOptimization` tuners in `Tensorflow`. MLP models for basket sizes 1, 7 and 13 are tuned with `RandomSearch` tuner, basket sizes of 4 and 10 are tuned with `BayesianOptimization` and basket size of 16 is tuned with `Hyperband`. All MLP models are trained for 10 epochs with a batch size of 32. Further details are in `experimenting_basket.ipynb`. 
 
 ## Discussions and Outlooks   
 
