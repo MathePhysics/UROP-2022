@@ -47,7 +47,6 @@ All neural network models are tuned using the `RandomSearch` tuner in `Tensorflo
 We provide some benchmarks for our methods. MSE stands for mean squared error and MAPE stands for mean absolute percentage error. The time for neural networks includes the training and testing time.  
 
 <center>
-
 | Methods       | MSE           | MAPE   | Time        |
 | ------------- | ------------- |--------| ------------|
 | Black-Scholes | 0.2216        | 101.78%| 0.021s      |
@@ -56,7 +55,6 @@ We provide some benchmarks for our methods. MSE stands for mean squared error an
 | BNN           | 0.0148        | 44.12% | 140.74s     |
 | MDN           | 0.0048        | 32.21% | 165.01s     |
 | SVM           | 0.0053        | 40.05% | 1463.64s    |
-
 </center>
 
 
