@@ -109,6 +109,10 @@ Comparison:
 <em>The training and testing time of MLPs compared with the Heston model</em>
 </p>
 
+![](./assets/Comparison between Heston and NN.png)
+<figcaption>The training and testing time of MLPs compared with the Heston model </figcaption>
+
+
 MLP structures used for different basket sizes:
 
 <div align="center">
