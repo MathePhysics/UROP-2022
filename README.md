@@ -39,7 +39,7 @@ Benchmarks for the Black Scholes [[4]](#4) and Heston model [[5]](#5) are run on
 
 Support vector machine is tuned using the `GridSearchCV` tuner in `scikit-learn` using 3-Folds cross-validator and is run on Apple M2 with 8.00 GB of RAM.  
 
-All neural network models are tuned using the `RandomSearch` tuner in `Tensorflow` and trained for 100 epochs using data obtained above on Google Colab using an Nvidia Tesla T4 GPU.  
+All neural network models are tuned using the `RandomSearch` tuner in `TensorFlow` and trained for 100 epochs using data obtained above on Google Colab using an Nvidia Tesla T4 GPU.  
 
 ## Benchmarks    
 
@@ -69,7 +69,7 @@ We provide some benchmarks for our methods. MSE stands for mean squared error an
 
 - SVM: Support Vector Machine for regression using radial basis function as kernel  
 
-The neural network models are tuned with a built-in `BayesianOptimization` tuner in `Tensorflow`.  
+The neural network models are tuned with a built-in `BayesianOptimization` tuner in `TensorFlow`.  
 Both MLP models are trained for 100 epochs with a batch size of 32, while the BNN and MDN are trained for 500 epochs with a batch size of 128 to alleviate the effect of noisy gradients.   
 The comparison with the Heston model using Monte Carlo simulation is excluded, as applying it to our data is infeasible due to the extremely long runtime.   
 
