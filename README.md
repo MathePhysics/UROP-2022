@@ -46,16 +46,17 @@ All neural network models are tuned using the `RandomSearch` tuner in `Tensorflo
 #### Vanilla options
 We provide some benchmarks for our methods. MSE stands for mean squared error and MAPE stands for mean absolute percentage error. The time for neural networks includes the training and testing time.  
 
-<center>
+
+  
 | Methods       | MSE           | MAPE   | Time        |
-| ------------- | ------------- |--------| ------------|
+| :-------------: | :-------------: |:-------------:| :-------------:|
 | Black-Scholes | 0.2216        | 101.78%| 0.021s      |
 | MLP           | 0.0035        | 24.30% | 337.99s     |
 | sinMLP        | 0.0034        | 24.18% | 517.98s     |
 | BNN           | 0.0148        | 44.12% | 140.74s     |
 | MDN           | 0.0048        | 32.21% | 165.01s     |
 | SVM           | 0.0053        | 40.05% | 1463.64s    |
-</center>
+
 
 
 - MLP: Multilayer Perceptron, 5 layers with `[50,50,50,50,50]` neurons, using exponential linear unit activation  
@@ -79,7 +80,7 @@ We used Monte Carlo Heston Benchmark for basket options. As the data for basket 
 Monte Carlo Heston Benchmark:
 
 |Basket Size|Feature Vector Length|Generating Inputs Time|Heston Pricing Time|Saving Time|Total Time Taken|
-| ------------- | ------------- |--------| ------------|------------- |--------| 
+| :-------------: | :-------------: |:-------------:| :-------------:|:-------------:|:-------------:| 
 |1|9|0.047|5.395|0.010|5.454|
 |4	|15	|0.036|21.748|	0.014|	21.804|
 |7	|21	|0.036|	37.925|	0.019|	37.990|
@@ -102,7 +103,7 @@ Comparison:
 MLP structures used for different basket sizes:
 
 |Basket Size|Number of Layers|Units| Activation Function|Batch normalization | 
-| ------------- | ------------- | ------------- | ------------- | ------------- | 
+| :-------------: | :-------------: | :-------------: | :-------------: | :-------------: | 
 |1|5|[6,6,7,7,7]	|tanh|True | 
 |4|5|[7,5,5,5,5]	|sigmoid|  False | 
 |7|2|[7,5]	|elu| False|
