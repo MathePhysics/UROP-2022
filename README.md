@@ -43,7 +43,7 @@ All neural network models are tuned using the `RandomSearch` tuner in `Tensorflo
 
 ## Benchmarks    
 
-#### Vanilla options
+### Vanilla options
 We provide some benchmarks for our methods. MSE stands for mean squared error and MAPE stands for mean absolute percentage error. The time for neural networks includes the training and testing time.  
 
 <center>
@@ -73,7 +73,7 @@ The neural network models are tuned with a built-in `BayesianOptimization` tuner
 Both MLP models are trained for 100 epochs with a batch size of 32, while the BNN and MDN are trained for 500 epochs with a batch size of 128 to alleviate the effect of noisy gradients.   
 The comparison with the Heston model using Monte Carlo simulation is excluded, as applying it to our data is infeasible due to the extremely long runtime.   
 
-#### Basket options
+### Basket options
 
 We used Monte Carlo Heston Benchmark for basket options. As the data for basket options are synthetic, we only compared the time efficiency.
 
