@@ -21,7 +21,7 @@ We obtained the European options data from 2002 to 2021 using a WRDS subscriptio
 The data were not standardized or mapped into the unit interval, as we believe that normal standardization procedures would obstruct our model from learning fluctuations and trends in the data.  
 However, relevant functions are implemented in `preprocess.py` and we can experiment with it easily.
 
-WRDS does not provide basket option data, therefore, we synthesize basket options from vanilla options. Further details are in `heston_basket_helper.py`.
+WRDS does not provide data of basket options, therefore, we synthesize basket options from vanilla options. Further details are in `heston_basket_helper.py`.
 
 ## Methodology   
 
@@ -71,7 +71,7 @@ The neural network models are tuned with a built-in `BayesianOptimization` tuner
 Both MLP models are trained for 100 epochs with a batch size of 32, while the BNN and MDN are trained for 500 epochs with a batch size of 128 to alleviate the effect of noisy gradients.   
 The comparison with the Heston model using Monte Carlo simulation is excluded, as applying it to our data is infeasible due to the extremely long runtime.   
 
-####Basket options
+#### Basket options
 
 We used Monte Carlo Heston Benchmark for basket options. As the data for basket options are synthetic, we only compared the time efficiency.
 
@@ -101,7 +101,7 @@ Comparison:
 MLP structures used for different basket sizes:
 
 |Basket Size|Number of Layers|Units| Activation Function|Batch normalization | 
-| ------------- | ------------- || ------------- | ------------- | ------------- | 
+| ------------- | ------------- | ------------- | ------------- | ------------- | 
 |1|5|[6,6,7,7,7]	|tanh|True | 
 |4|5|[7,5,5,5,5]	|sigmoid|  False | 
 |7|2|[7,5]	|elu| False|
