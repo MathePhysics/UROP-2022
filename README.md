@@ -21,7 +21,7 @@ We obtained the European options data from 2002 to 2021 using a WRDS subscriptio
 The data were not standardized or mapped into the unit interval, as we believe that normal standardization procedures would obstruct our model from learning fluctuations and trends in the data.  
 However, relevant functions are implemented in `preprocess.py` and we can experiment with it easily.
 
-WRDS does not provide data for basket options, therefore, we synthesize basket options from vanilla options. Further details are in `heston_basket_helper.py`.
+WRDS does not provide data of basket options, therefore, we synthesize basket options from vanilla options. Further details are in `heston_basket_helper.py`.
 
 ## Methodology   
 
