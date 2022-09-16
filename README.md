@@ -104,13 +104,9 @@ Multilayer Perceptron:
 Comparison:
 <p align="center">
 <img src="./assets/Comparison between Heston and NN.png">
-</p>
 <p align="center">
 <em>The training and testing time of MLPs compared with the Heston model</em>
 </p>
-
-![The training and testing time of MLPs compared with the Heston model](./assets/Comparison between Heston and NN.png)
-<figcaption>The training and testing time of MLPs compared with the Heston model </figcaption>
 
 
 MLP structures used for different basket sizes:
