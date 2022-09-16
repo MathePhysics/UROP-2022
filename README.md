@@ -77,7 +77,7 @@ The comparison with the Heston model using Monte Carlo simulation is excluded, a
 
 We used Monte Carlo Heston Benchmark for basket options. As the data for basket options are synthetic, we only compared the time efficiency.
 
-Monte Carlo Heston Benchmark:
+Time efficiency of Monte Carlo Heston Benchmark:
 
 <div align="center">  
   
@@ -92,7 +92,7 @@ Monte Carlo Heston Benchmark:
 
 </div>
 
-Multilayer Perceptron:
+Time efficiency of Multilayer Perceptrons:
 <p align="center">
 <img src="./assets/NN training and testing time.png">
 </p>
@@ -102,12 +102,12 @@ Multilayer Perceptron:
 
 
 Comparison:
-<figure align="center">
+<p align="center">
 <img src="./assets/Comparison between Heston and NN.png">
-<figcaption>The training and testing time of MLPs compared with the Heston model</figcaption>
-</figure>
-
-
+</p>
+<p align="center">
+<em>The training and testing time of MLPs compared with the Heston model</em>
+</p>
 
 MLP structures used for different basket sizes:
 
