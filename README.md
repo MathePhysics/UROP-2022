@@ -35,7 +35,7 @@ For probabilistic machine learning methods, while their training takes longer to
 
 For standard multilayer perceptron, its training takes only a relatively short amount of time thanks to modern computational advancements, but it can only provide a point estimate.  
 
-Benchmarks for the Black Scholes and Heston model are run on Apple M1 with 8.00 GB of RAM.
+Benchmarks for the Black Scholes [[4]](#4) and Heston model [[5]](#5) are run on Apple M1 with 8.00 GB of RAM.
 
 Support vector machine is tuned using the `GridSearchCV` tuner in `scikit-learn` using 3-Folds cross-validator and is run on Apple M2 with 8.00 GB of RAM.  
 
@@ -134,3 +134,9 @@ Bishop, C.M. (1994). Mixture density networks.
 
 <a id = "3">[3]</a>
 Drucker, H., Burges, C.J., Kaufman, L., Smola, A., & Vapnik, V.N. (1996). Support Vector Regression Machines. NIPS.
+
+<a id = "4">[4]</a>
+Black, F., & Scholes, M. (1973). The Pricing of Options and Corporate Liabilities. Journal of Political Economy, 81(3), 637–654. http://www.jstor.org/stable/1831029
+  
+<a id = "5">[5]</a>
+Heston, S. (1993). A Closed-Form Solution for Options with Stochastic Volatility with Applications to Bond and Currency Options. Review of Financial Studies, 6, 327-343.
