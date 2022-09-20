@@ -41,7 +41,7 @@ Support vector machine is tuned using the `GridSearchCV` tuner in `scikit-learn`
 
 All neural network models are tuned using the `RandomSearch` tuner in `TensorFlow` and trained for 100 epochs using data obtained above on Google Colab using an Nvidia Tesla T4 GPU.  
 
-## Benchmarks    
+## Results    
 
 ### Vanilla options
 We provide some benchmarks for our methods. MSE stands for mean squared error and MAPE stands for mean absolute percentage error. The time for neural networks includes the training and testing time.  
