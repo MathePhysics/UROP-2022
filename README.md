@@ -1,6 +1,6 @@
 # Option Pricing with Machine Learning Methods  
 
-*This is a repository for UROP summer 2022, supervised by Mr. Akshunna S. Dogra and Prof. Jeroen Lamb. The code is based on the thesis Efficiently Pricing Financial Derivatives Using Neural Networks of Connor Tracy [link](https://github.com/Connor-Tracy/Neural-Network-Option_pricing)*
+*This is a repository for UROP summer 2022, supervised by Mr. Akshunna S. Dogra and Prof. Jeroen Lamb. The code is based on the thesis [Efficiently Pricing Financial Derivatives Using Neural Networks](https://github.com/Connor-Tracy/Neural-Network-Option_pricing) of Connor Tracy.*
 &nbsp;  
 
 <p align="center">
