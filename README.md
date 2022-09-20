@@ -1,6 +1,6 @@
 # Option Pricing with Machine Learning Methods  
 
-*This is a repository for UROP summer 2022.*  
+*This is a repository for UROP summer 2022, supervised by Mr. Akshunna S. Dogra and Prof. Jeroen Lamb. The code is based on the thesis [Efficiently Pricing Financial Derivatives Using Neural Networks](https://github.com/Connor-Tracy/Neural-Network-Option_pricing) of Connor Tracy.*
 &nbsp;  
 
 <p align="center">
@@ -41,7 +41,7 @@ Support vector machine is tuned using the `GridSearchCV` tuner in `scikit-learn`
 
 All neural network models are tuned using the `RandomSearch` tuner in `TensorFlow` and trained for 100 epochs using data obtained above on Google Colab using an Nvidia Tesla T4 GPU.  
 
-## Benchmarks    
+## Results    
 
 ### Vanilla options
 We provide some benchmarks for our methods. MSE stands for mean squared error and MAPE stands for mean absolute percentage error. The time for neural networks includes the training and testing time.  
@@ -77,7 +77,7 @@ The comparison with the Heston model using Monte Carlo simulation is excluded, a
 
 We used Monte Carlo Heston Benchmark for basket options. As the data for basket options are synthetic, we only compared the time efficiency.
 
-Monte Carlo Heston Benchmark:
+Time efficiency of Monte Carlo Heston Benchmark:
 
 <div align="center">  
   
@@ -92,7 +92,7 @@ Monte Carlo Heston Benchmark:
 
 </div>
 
-Multilayer Perceptron:
+Time efficiency of Multilayer Perceptrons:
 <p align="center">
 <img src="./assets/NN training and testing time.png">
 </p>
