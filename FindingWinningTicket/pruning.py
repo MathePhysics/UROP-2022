@@ -62,24 +62,6 @@ class pruning(object):
             num = img.shape[0]
         return num
 
-    # TODO: add Dataset implementaion
-    
-    # @property
-    # def dset(self):
-        # some processing goes in here
-        # to modify user input
-        # pass
-    # @dset.setter
-
-    # @property
-    # def ds_train(self):
-    #     pass
-
-    # @property
-    # def ds_test(self):
-    #     pass
-    
-
     def makeModel(self, preinit_weights = None, masks = None):
         '''
         Initializes model before pruning.
@@ -104,7 +86,7 @@ class pruning(object):
                     verbose=self.verbose)  
 
     def test_model(self):
-        '''Checks model is built correctly.'''  
+        '''Checks model is built correctly and returns trained model.'''  
         model = self.makeModel()
         model.summary()
         model.compile(self.model_params['optimizer'],
@@ -114,6 +96,7 @@ class pruning(object):
                 batch_size = self.batch_size,
                 epochs = self.epochs_for_pruning,
                 validation_data = self.ds_test)  
+        return model
 
 
     def test_training(self, epochs = 5):
