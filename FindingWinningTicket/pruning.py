@@ -22,7 +22,8 @@ class pruning(object):
                 epochs_for_pruning = 10,
                 num_pruning = 10,
                 step_perc = 0.5,
-                verbose = True):
+                verbose = True,
+                same_init = False):
         '''
         Args:   
             - ds_train: dataset for training, already batched
@@ -45,7 +46,8 @@ class pruning(object):
             - epochs: epochs to train the model before pruning
             - num_pruning: no. of rounds to prune
             - step_perc: percentage to prune
-            - verbose: boolean, whether to print out information, default True
+            - verbose: boolean, whether to print out information, default True  
+            - same_init: boolean, whether to use the same initial weights after pruning, default False
         '''
         self.ds_train = ds_train
         self.ds_test = ds_test
@@ -55,6 +57,7 @@ class pruning(object):
         self.num_pruning = num_pruning
         self.step_perc = step_perc
         self.verbose = verbose    
+        self.same_init = same_init
 
     @property
     def batch_size(self):
@@ -73,9 +76,9 @@ class pruning(object):
     
     def prune(self):
         '''
-        Iteratively prunes the model.
+        Iteratively prunes the model and returns the initial masks.
         '''  
-        iterPruning(self.makeModel,
+        return iterPruning(self.makeModel,
                     self.ds_train,
                     self.ds_test,
                     self.model_params,
@@ -83,7 +86,8 @@ class pruning(object):
                     epochs = self.epochs_for_pruning,
                     num_pruning=self.num_pruning,
                     step_perc=self.step_perc,
-                    verbose=self.verbose)  
+                    verbose=self.verbose,
+                    same_init=self.same_init)
 
     def test_model(self):
         '''Checks model is built correctly and returns trained model.'''  
