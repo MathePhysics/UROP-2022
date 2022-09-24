@@ -5,8 +5,11 @@ import datetime
 import tensorflow as tf
 import matplotlib.pyplot as plt
 # from tqdm import tqdm  
-from models import *
-from helper import *
+try:
+  from models import *
+  from helper import *
+except:
+  pass
 
 @tf.function
 def train_one_step(model, 
@@ -88,7 +91,8 @@ def iterPruning(modelFunc,
                 train_params,
                 epochs = 10,
                 num_pruning = 10,
-                step_perc = 0.5):  
+                step_perc = 0.5,
+                verbose = False):  
   '''
   Returns winning ticket and prints train&test accuracies.  
 
@@ -104,7 +108,8 @@ def iterPruning(modelFunc,
                   - patience: int, no. of epochs to wait before early stopping  
     - epochs: epochs to train the model before pruning
     - num_pruning: no. of rounds to prune
-    - step_perc: percentage to prune
+    - step_perc: percentage to prune  
+    - verbose: bool, print train&test accuracies, default False
   '''  
   
   init_masks_set = [None]
@@ -188,8 +193,9 @@ def iterPruning(modelFunc,
       test_loss(loss)
 ###############################################################################
     for epoch in range(epochs):  
-
-      print(f"Epoch {epoch} for original")
+      # training loop
+      if verbose:
+        print(f"Epoch {epoch} for original")
 
       for x,y in ds_train:
         train_one_step_og(model_to_prune, x,y, 
@@ -201,22 +207,29 @@ def iterPruning(modelFunc,
         tf.summary.scalar('train_og_accuracy', train_acc.result(), step=epoch)
 
       # optional printing of training accuracy
-      print(f"OG train acc {train_acc.result()}")
+      if verbose:
+        print(f"Original model train accuracy {train_acc.result()}")
+
       train_loss.reset_states()
       train_acc.reset_states()
 
       for x,y in ds_test:
         test_one_step_og(model_to_prune, x, y, loss_fn,
-                      test_acc, test_loss)
+                      test_acc, test_loss)  
+
+
+      test_loss_resu = test_loss.result()
+      test_acc_resu = test_acc.result()
 
       with test_og.as_default():
-        tf.summary.scalar('test_og_loss', test_loss.result(), step=epoch)
-        tf.summary.scalar('test_og_accuracy', test_acc.result(), step=epoch)
+        tf.summary.scalar('test_og_loss', test_loss_resu, step=epoch)
+        tf.summary.scalar('test_og_accuracy', test_acc_resu, step=epoch)
 
       # stores original accuracy
-      print(f"Original model accuracy {test_acc.result()} \n")
+      if verbose:
+        print(f"Original model valid accuracy {test_acc_resu} \n")
       # original_acc.append(test_acc.result())
-      original_loss_hist.append(test_loss.result())
+      original_loss_hist.append(test_loss_resu)
 
       test_loss.reset_states()
       test_acc.reset_states()  
@@ -224,7 +237,7 @@ def iterPruning(modelFunc,
       flag = earlyStop(original_loss_hist, patience)
 
       if flag:
-        print(f"Early stop; the original accuracy is {test_acc.result()} and loss is {test_loss.result()}")
+        print(f"Early stop; the original accuracy is {test_acc_resu} and loss is {test_loss_resu}")
         break
 
     # original_best = np.max(np.array(original_acc))
@@ -306,7 +319,8 @@ def iterPruning(modelFunc,
 ###############################################################################
     for epoch in range(epochs):
       # train the same number of epochs for lottery tickets
-      print(f"Epoch {epoch} for lottery ticket")
+      if verbose:
+        print(f"Epoch {epoch} for lottery ticket")
 
       for x,y in ds_train:
         # in batches, train the lottery tickets
@@ -315,13 +329,16 @@ def iterPruning(modelFunc,
                       mask_list, optimizer,
                       loss_fn, train_ticket_acc, train_ticket_loss)
 
+      train_ticket_acc_resu = train_ticket_acc.result()
+      train_ticket_loss_resu = train_ticket_loss.result()
+
       with train_ticket.as_default():
-        tf.summary.scalar('train_ticket_loss', train_ticket_loss.result(), step=epoch)
-        tf.summary.scalar('train_ticket_accuracy', train_ticket_acc.result(), step=epoch)
+        tf.summary.scalar('train_ticket_loss', train_ticket_loss_resu, step=epoch)
+        tf.summary.scalar('train_ticket_accuracy', train_ticket_acc_resu, step=epoch)
 
       # optional printing of train acc
-
-      print(f"Ticket train acc {train_ticket_acc.result()} \n")
+      if verbose:
+        print(f"Ticket train accuracy {train_ticket_acc_resu} \n")
       train_ticket_loss.reset_states()
       train_ticket_acc.reset_states()
 
@@ -334,18 +351,19 @@ def iterPruning(modelFunc,
         tf.summary.scalar('test_ticket_loss', test_ticket_loss.result(), step=epoch)
         tf.summary.scalar('test_ticket_accuracy', test_ticket_acc.result(), step=epoch)
       
-      ticket_acc = test_ticket_acc.result()
-      ticket_loss_hist.append(test_ticket_loss.result())
+      ticket_acc_resu = test_ticket_acc.result()
+      ticket_loss_resu = test_ticket_loss.result()
+      ticket_loss_hist.append(ticket_loss_resu)
 
       test_ticket_loss.reset_states()
       test_ticket_acc.reset_states()
-
-      print(f"Lottery ticket accuracy {ticket_acc} \n")
+      if verbose:
+        print(f"Ticket test accuracy {ticket_acc_resu} \n")
 
       ticket_flag = earlyStop(ticket_loss_hist, patience)
 
       if ticket_flag:
-        print(f"\n Early stop, ticket accuracy: {ticket_acc} and ticket loss: {test_ticket_loss.result()} \n")
+        print(f"\n Early stop, ticket accuracy: {ticket_acc_resu} and ticket loss: {ticket_loss_resu} \n")
         break
 
       # if ticket_acc > original_best:  
@@ -357,8 +375,8 @@ def iterPruning(modelFunc,
 
       
 
-    print(f"\n Lottery ticket training finished. Highest Accuracy {ticket_acc} \n")
-    re_ticket.save(f'saved_models/ticket_acc_{ticket_acc}'+f' pruning round_{i}')
+    print(f"\n Lottery ticket training finished. Highest Accuracy {ticket_acc_resu} \n")
+    re_ticket.save(f'saved_models/ticket_acc_{ticket_acc_resu}'+f' pruning round_{i}')
 
   
 
