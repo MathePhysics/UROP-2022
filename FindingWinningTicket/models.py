@@ -22,7 +22,7 @@ class maskInit(tf.keras.initializers.Initializer):
       - preinit_weights: weights
       - initializer: tf.keras.initializers object
     '''
-    
+
     self.mask = mask
     self.initializer = initializer
     self.preinit_weights = preinit_weights
@@ -52,6 +52,7 @@ def makeFC(preinit_weights = None, masks = None,
               output_shape = 10,
               layers = [300, 100],
               activation = 'relu',
+              initializer = tf.keras.initializers.random_uniform(),
               final_activation = None,
               BatchNorm = False,
               Dropout = None,
@@ -63,7 +64,7 @@ def makeFC(preinit_weights = None, masks = None,
     Returns a model for pruning.   
 
     Args:    
-        - preinit_weights: ndarray, the initialized weights, default to None,
+        - preinit_weights: dictionary of ndarray, the initialized weights, default to None,
                 None when first initializing  
         - masks: dictionary of ndarray, each element is a mask for all the weights  
         - input_shape: tuple, shape of input data
@@ -71,6 +72,7 @@ def makeFC(preinit_weights = None, masks = None,
         - layers: list of integers, specifying nodes in hidden layers, 
                 [layer1, layer2, ..., layerN]
         - activation: string, activation function for hidden layers  
+        - initializer: string, initializer for weights, default to random_uniform
         - final_activation: string, activation function for output layer
         - BatchNorm: boolean, whether to use batch normalization
         - Dropout: list of floats, dropout rate for hidden layers only
@@ -116,7 +118,7 @@ def makeFC(preinit_weights = None, masks = None,
             preinit_weight = preinit_weight_list[i]
 
         model.add(tf.keras.layers.Dense(layers[i], activation = activation,
-                    kernel_initializer = maskInit(mask = mask, preinit_weights = preinit_weight)))
+                    kernel_initializer = maskInit(mask = mask, preinit_weights = preinit_weight, initializer=initializer)))
         if BatchNorm:
             model.add(tf.keras.layers.BatchNormalization())
         if Dropout is not None:
