@@ -4,9 +4,12 @@ import os
 import shutil
 import numpy as np
 import tensorflow as tf
-from models import *
-from helper import *
-from trainer import iterPruning, train_one_step, test_one_step
+try:
+    from models import *
+    from helper import *
+    from trainer import iterPruning, train_one_step, test_one_step
+except:
+    pass
 
 
 class pruning(object):
@@ -18,7 +21,8 @@ class pruning(object):
                 train_params,
                 epochs_for_pruning = 10,
                 num_pruning = 10,
-                step_perc = 0.5):
+                step_perc = 0.5,
+                verbose = True):
         '''
         Args:   
             - ds_train: dataset for training, already batched
@@ -41,6 +45,7 @@ class pruning(object):
             - epochs: epochs to train the model before pruning
             - num_pruning: no. of rounds to prune
             - step_perc: percentage to prune
+            - verbose: boolean, whether to print out information, default True
         '''
         self.ds_train = ds_train
         self.ds_test = ds_test
@@ -48,7 +53,8 @@ class pruning(object):
         self.train_params = train_params
         self.epochs_for_pruning = epochs_for_pruning
         self.num_pruning = num_pruning
-        self.step_perc = step_perc    
+        self.step_perc = step_perc
+        self.verbose = verbose    
 
     @property
     def batch_size(self):
@@ -94,7 +100,8 @@ class pruning(object):
                     self.train_params,
                     epochs = self.epochs_for_pruning,
                     num_pruning=self.num_pruning,
-                    step_perc=self.step_perc)  
+                    step_perc=self.step_perc,
+                    verbose=self.verbose)  
 
     def test_model(self):
         '''Checks model is built correctly.'''  
