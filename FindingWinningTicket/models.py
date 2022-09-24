@@ -22,6 +22,7 @@ class maskInit(tf.keras.initializers.Initializer):
       - preinit_weights: weights
       - initializer: tf.keras.initializers object
     '''
+    
     self.mask = mask
     self.initializer = initializer
     self.preinit_weights = preinit_weights
